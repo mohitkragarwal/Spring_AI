@@ -1,24 +1,38 @@
 package com.mohit.SpringAICode;
 
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLOutput;
+
 @RestController
 public class OpenAIController {
 
-    private OpenAiChatModel chatModel;
+    private ChatClient chatClient;
 
     public OpenAIController(OpenAiChatModel chatModel) {
-        this.chatModel = chatModel;
+        this.chatClient = ChatClient.create(chatModel);
     }
 
     @GetMapping("/api/{message}")
-    public String getAnswer(@PathVariable String message){
+    public org.springframework.http.ResponseEntity<String> getAnswer(@PathVariable String message){
 
-        String response=chatModel.call(message);
-        return response;
+        ChatResponse chatResponse=chatClient
+                .prompt(message)
+                .call()
+                .chatResponse();
+        System.out.println(chatResponse.getMetadata().getModel());
+        String response =chatResponse
+                .getResult()
+                .getOutput()
+                .getText();
+
+        return ResponseEntity.ok(response);
 
     }
 

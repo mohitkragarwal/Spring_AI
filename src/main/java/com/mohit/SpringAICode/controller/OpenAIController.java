@@ -1,4 +1,4 @@
-package com.mohit.SpringAICode;
+package com.mohit.SpringAICode.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;

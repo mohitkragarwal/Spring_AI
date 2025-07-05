@@ -2,6 +2,7 @@ package com.mohit.SpringAICode.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -114,5 +115,14 @@ public class OpenAIController {
         return vectorStore.similaritySearch(SearchRequest.builder().query(text).topK(2).build());
     }
 
+    @PostMapping("/api/ask")
+    public String getAnswerFromDocument(@RequestParam String query) {
+
+        return chatClient
+                .prompt(query)
+                .advisors(new QuestionAnswerAdvisor(vectorStore))
+                .call()
+                .content();
+    }
 
 }

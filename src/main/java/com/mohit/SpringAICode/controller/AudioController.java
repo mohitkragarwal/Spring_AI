@@ -4,9 +4,12 @@ import org.springframework.ai.audio.transcription.AudioTranscription;
 import org.springframework.ai.audio.transcription.AudioTranscriptionOptions;
 import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
 import org.springframework.ai.openai.OpenAiAudioSpeechModel;
+import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
 import org.springframework.ai.openai.OpenAiAudioTranscriptionOptions;
 import org.springframework.ai.openai.api.OpenAiAudioApi;
+import org.springframework.ai.openai.audio.speech.SpeechMessage;
+import org.springframework.ai.openai.audio.speech.SpeechPrompt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +20,11 @@ public class AudioController {
 
     private OpenAiAudioTranscriptionModel audioModel;
 
-    public AudioController(OpenAiAudioTranscriptionModel audioModel){
+    private OpenAiAudioSpeechModel audioSpeechModel;
+
+    public AudioController(OpenAiAudioTranscriptionModel audioModel, OpenAiAudioSpeechModel audioSpeechModel){
         this.audioModel=audioModel;
+        this.audioSpeechModel=audioSpeechModel;
     }
 
     @PostMapping("api/stt")
@@ -35,5 +41,19 @@ public class AudioController {
 
 
         return audioModel.call(prompt).getResult().getOutput();
+    }
+
+    @PostMapping("api/tts")
+    public byte[] text_to_speech(@RequestParam String text)
+    {
+        SpeechMessage message=new SpeechMessage(text);
+        OpenAiAudioSpeechOptions options=OpenAiAudioSpeechOptions
+                .builder()
+                .speed(1.5F)
+                .voice(OpenAiAudioApi.SpeechRequest.Voice.ASH)
+                .build();
+        SpeechPrompt prompt= new SpeechPrompt(message,options);
+
+        return audioSpeechModel.call(prompt).getResult().getOutput();
     }
 }

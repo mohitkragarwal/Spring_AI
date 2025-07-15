@@ -9,6 +9,7 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.converter.ListOutputConverter;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,8 +48,6 @@ public class MovieConverter {
     @GetMapping("movie")
     public Movie getaMovie(@RequestParam String name) {
 
-
-
         Movie movie = chatClient.prompt()
                 .user(u -> u.text("Best movie of {name} based of imdb").param("name", name))
                 .call()
@@ -56,8 +55,17 @@ public class MovieConverter {
 
 
         return movie;
+    }
+    @GetMapping("movie/list")
+    public List<Movie> getMovieList(@RequestParam String name) {
+
+        List<Movie> movies = chatClient.prompt()
+                .user(u -> u.text("Top 3 movie of {name} based of imdb").param("name", name))
+                .call()
+                .entity(new BeanOutputConverter<>(new ParameterizedTypeReference<List<Movie>>() {}));
 
 
+        return movies;
     }
 
 }
